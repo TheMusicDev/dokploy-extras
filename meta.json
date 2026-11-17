@@ -1,0 +1,11 @@
+[
+  {
+    "id": "hello-web",
+    "name": "Hello Web",
+    "version": "1.0.0",
+    "description": "Minimal example template (nginx) to verify the dokploy-extras registry works.",
+    "logo": "logo.svg",
+    "links": { "github": "https://github.com/TheMusicDev/dokploy-extras" },
+    "tags": ["example"]
+  }
+]
