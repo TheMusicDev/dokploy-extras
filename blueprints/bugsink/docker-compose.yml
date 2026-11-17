@@ -1,0 +1,90 @@
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: "pg_isready -h localhost -U $${POSTGRES_USER} -d $${POSTGRES_DB}"
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  web:
+    image: bugsink/bugsink:2.6.3
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    environment:
+      # Core
+      PORT: ${PORT}
+      SECRET_KEY: ${SECRET_KEY}
+      BASE_URL: ${BASE_URL}
+      SITE_TITLE: ${SITE_TITLE}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS}
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      # Initial superuser (created only if no users exist): email:password
+      CREATE_SUPERUSER: ${CREATE_SUPERUSER}
+      # Proxy awareness
+      BEHIND_HTTPS_PROXY: ${BEHIND_HTTPS_PROXY}
+      USE_X_FORWARDED_HOST: ${USE_X_FORWARDED_HOST}
+      USE_X_REAL_IP: ${USE_X_REAL_IP}
+      USE_X_FORWARDED_FOR: ${USE_X_FORWARDED_FOR}
+      X_FORWARDED_FOR_PROXY_COUNT: ${X_FORWARDED_FOR_PROXY_COUNT}
+      # Registration / access
+      SINGLE_USER: ${SINGLE_USER}
+      SINGLE_TEAM: ${SINGLE_TEAM}
+      USER_REGISTRATION: ${USER_REGISTRATION}
+      USER_REGISTRATION_VERIFY_EMAIL: ${USER_REGISTRATION_VERIFY_EMAIL}
+      # Email (SMTP). All empty = sending email disabled.
+      EMAIL_BACKEND: ${EMAIL_BACKEND}
+      EMAIL_HOST: ${EMAIL_HOST}
+      EMAIL_HOST_USER: ${EMAIL_HOST_USER}
+      EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD}
+      EMAIL_PORT: ${EMAIL_PORT}
+      EMAIL_USE_TLS: ${EMAIL_USE_TLS}
+      EMAIL_USE_SSL: ${EMAIL_USE_SSL}
+      EMAIL_TIMEOUT: ${EMAIL_TIMEOUT}
+      DEFAULT_FROM_EMAIL: ${DEFAULT_FROM_EMAIL}
+      # Misc
+      TIME_ZONE: ${TIME_ZONE}
+      DEBUG: ${DEBUG}
+      PHONEHOME: ${PHONEHOME}
+      SNAPPEA_NUM_WORKERS: ${SNAPPEA_NUM_WORKERS}
+      # Limits / retention
+      MAX_EVENT_SIZE: ${MAX_EVENT_SIZE}
+      MAX_ENVELOPE_SIZE: ${MAX_ENVELOPE_SIZE}
+      MAX_ENVELOPE_COMPRESSED_SIZE: ${MAX_ENVELOPE_COMPRESSED_SIZE}
+      MAX_FILE_SIZE: ${MAX_FILE_SIZE}
+      MAX_EVENTS_PER_MONTH: ${MAX_EVENTS_PER_MONTH}
+      MAX_EMAILS_PER_MONTH: ${MAX_EMAILS_PER_MONTH}
+      MAX_EVENT_AGE_DAYS: ${MAX_EVENT_AGE_DAYS}
+      # File storage (empty = store in database)
+      FILE_EVENT_STORAGE_PATH: ${FILE_EVENT_STORAGE_PATH}
+      FILE_EVENT_STORAGE_USE_FOR_WRITE: ${FILE_EVENT_STORAGE_USE_FOR_WRITE}
+      FILE_OBJECT_STORAGE_PATH: ${FILE_OBJECT_STORAGE_PATH}
+      FILE_OBJECT_STORAGE_USE_FOR_WRITE: ${FILE_OBJECT_STORAGE_USE_FOR_WRITE}
+    healthcheck:
+      test: ["CMD-SHELL", "python -c 'import requests; requests.get(\"http://localhost:8000/health/ready\").raise_for_status()'"]
+      interval: 5s
+      timeout: 20s
+      retries: 10
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  db-data:

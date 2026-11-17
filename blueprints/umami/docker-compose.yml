@@ -1,0 +1,69 @@
+services:
+  umami:
+    image: ghcr.io/umami-software/umami:3.5.0
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      APP_SECRET: ${APP_SECRET}
+      # Required before any user can enable 2FA — openssl rand -hex 32
+      TWO_FACTOR_ENCRYPTION_KEY: ${TWO_FACTOR_ENCRYPTION_KEY}
+      # Proxy / visitor IPs
+      CLIENT_IP_HEADER: ${CLIENT_IP_HEADER}
+      TRUSTED_PROXIES: ${TRUSTED_PROXIES}
+      IGNORE_IP: ${IGNORE_IP}
+      # Tracker script / ad-block evasion
+      COLLECT_API_ENDPOINT: ${COLLECT_API_ENDPOINT}
+      TRACKER_SCRIPT_NAME: ${TRACKER_SCRIPT_NAME}
+      # Behavior
+      DISABLE_BOT_CHECK: ${DISABLE_BOT_CHECK}
+      DISABLE_LOGIN: ${DISABLE_LOGIN}
+      PRIVATE_MODE: ${PRIVATE_MODE}
+      REMOVE_TRAILING_SLASH: ${REMOVE_TRAILING_SLASH}
+      CORS_MAX_AGE: ${CORS_MAX_AGE}
+      ERRORS_PER_MINUTE: ${ERRORS_PER_MINUTE}
+      SALT_ROTATION: ${SALT_ROTATION}
+      USE_UUIDV7: ${USE_UUIDV7}
+      ENABLE_TEST_CONSOLE: ${ENABLE_TEST_CONSOLE}
+      MCP_ENABLED: ${MCP_ENABLED}
+      DEBUG: ${DEBUG}
+      # Server
+      PORT: ${PORT}
+      HOSTNAME: ${HOSTNAME}
+    init: true
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:3000/api/heartbeat"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - umami-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  umami-db-data:

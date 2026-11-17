@@ -1,5 +1,41 @@
 [
   {
+    "id": "bugsink",
+    "name": "Bugsink",
+    "version": "1.0.0",
+    "description": "Self-hosted error tracker, Sentry-SDK compatible. One web container + PostgreSQL.",
+    "logo": "logo.png",
+    "links": {
+      "github": "https://github.com/bugsink/bugsink",
+      "website": "https://www.bugsink.com"
+    },
+    "tags": ["monitoring", "error-tracking"]
+  },
+  {
+    "id": "meilisearch",
+    "name": "Meilisearch",
+    "version": "1.0.0",
+    "description": "Fast, open-source RESTful search engine with typo tolerance and instant search out of the box.",
+    "logo": "logo.svg",
+    "links": {
+      "github": "https://github.com/meilisearch/meilisearch",
+      "website": "https://www.meilisearch.com"
+    },
+    "tags": ["search"]
+  },
+  {
+    "id": "umami",
+    "name": "Umami",
+    "version": "1.0.0",
+    "description": "Privacy-focused, open-source web analytics with first-party cookie-less tracking.",
+    "logo": "logo.svg",
+    "links": {
+      "github": "https://github.com/umami-software/umami",
+      "website": "https://umami.is"
+    },
+    "tags": ["analytics"]
+  },
+  {
     "id": "hello-web",
     "name": "Hello Web",
     "version": "1.0.0",

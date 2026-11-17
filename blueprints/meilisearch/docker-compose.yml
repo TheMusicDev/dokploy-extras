@@ -1,0 +1,38 @@
+services:
+  meilisearch:
+    image: getmeili/meilisearch:v1.57.0
+    restart: unless-stopped
+    environment:
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
+      MEILI_ENV: ${MEILI_ENV}
+      MEILI_HTTP_ADDR: ${MEILI_HTTP_ADDR}
+      MEILI_LOG_LEVEL: ${MEILI_LOG_LEVEL}
+      MEILI_DB_PATH: ${MEILI_DB_PATH}
+      MEILI_HTTP_PAYLOAD_SIZE_LIMIT: ${MEILI_HTTP_PAYLOAD_SIZE_LIMIT}
+      MEILI_MAX_INDEXING_MEMORY: ${MEILI_MAX_INDEXING_MEMORY}
+      MEILI_MAX_INDEXING_THREADS: ${MEILI_MAX_INDEXING_THREADS}
+      MEILI_NO_ANALYTICS: ${MEILI_NO_ANALYTICS}
+      MEILI_DUMP_DIR: ${MEILI_DUMP_DIR}
+      MEILI_IMPORT_DUMP: ${MEILI_IMPORT_DUMP}
+      MEILI_IGNORE_MISSING_DUMP: ${MEILI_IGNORE_MISSING_DUMP}
+      MEILI_SNAPSHOT_DIR: ${MEILI_SNAPSHOT_DIR}
+      MEILI_IMPORT_SNAPSHOT: ${MEILI_IMPORT_SNAPSHOT}
+      MEILI_IGNORE_MISSING_SNAPSHOT: ${MEILI_IGNORE_MISSING_SNAPSHOT}
+      MEILI_SCHEDULE_SNAPSHOT: ${MEILI_SCHEDULE_SNAPSHOT}
+      MEILI_SNAPSHOT_INTERVAL_SEC: ${MEILI_SNAPSHOT_INTERVAL_SEC}
+    volumes:
+      - meili_data:/meili_data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:7700/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  meili_data:

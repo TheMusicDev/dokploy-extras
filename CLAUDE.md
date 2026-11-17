@@ -45,16 +45,54 @@ Template → Base URL = the Pages URL (currently `https://themusicdev.github.io/
 - Template `id`: short kebab-case (`hello-web`).
 - `version` bumped (semver) when compose/template behavior changes.
 - Tags in `meta.json` used for categorization (`example`, `database`, `app`, …).
+- **Pinned tags only.** Never `latest` in `image:`. Pin the exact version
+  (e.g. `bugsink/bugsink:2.6.3`, `getmeili/meilisearch:v1.57.0`,
+  `ghcr.io/umami-software/umami:3.5.0`). Verify the tag exists on the registry
+  before pinning (docker registry `/tags/list`, ghcr ones need
+  `?n=1000` — the default caps at 100 and hides newer tags).
+- **Every supported env var in `template.toml` `[config.env]`.** The deploy
+  dialog is the user's documentation — list all documented config vars with
+  sane defaults (empty = disabled) so nothing has to be guessed. Copy-env
+  lists verbatim from the project's official docs/compose, not from memory.
+- **Log rotation on every service.** Each compose service gets:
+  ```yaml
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+  ```
+- **Proper logos.** `logo.svg` (or `logo.png` when upstream only ships
+  raster) downloaded from an official source — product site or GitHub repo,
+  never invented. Record where it came from in the session notes.
+- Don't map host `ports:` in compose — Dokploy Traefik routes via
+  `[[config.domains]]` (serviceName + internal port).
 
 ## Roadmap / decisions
 
 <!-- Update as decisions are made. Oldest context first, newest at top. -->
 
 - 2026-11-17: Repo scaffolded with `hello-web` example to verify Pages +
-  registry plumbing. Next: list the real templates we actually need.
+  registry plumbing.
+- 2026-11-17: Added `bugsink`, `meilisearch`, `umami`. Written per the new
+  conventions (pinned tags, full env lists, log rotation, official logos).
+  **Not yet live-tested on the Dokploy instance** — run compose-deployTemplate
+  on each before trusting the env defaults (esp. Bugsink: empty-string env
+  vars like `EMAIL_HOST=""` may not behave the same as *unset*).
 
 ## Gotchas learned
 
 <!-- Add non-obvious Dokploy/template findings here with dates. -->
 
-- (none yet)
+- (2026-11-17) ghcr.io `/tags/list` caps at 100 entries by default — pass
+  `?n=1000` or newer tags vanish silently.
+- (2026-11-17) Umami v3 images are unified: plain numeric tags
+  (`3.5.0`) on ghcr.io/umami-software/umami, PostgreSQL is the runtime
+  default (no `DATABASE_TYPE` needed). The old `postgresql-vX.Y` tags are
+  v1/v2-era only.
+- (2026-11-17) Bugsink docker image configures everything via env vars
+  including `DATABASE_URL` (postgres/mysql) — SQLite in /data is the baked-in
+  default we don't use.
+- (2026-11-17) Bugsink only ships raster logos (16–64 px PNG); 64 px it is.
+- (2026-11-17) Logo sources: meilisearch (repo main/assets/logo.svg),
+  umami (umami.is /safari-pinned-tab.svg), bugsink (site 64 px PNG).

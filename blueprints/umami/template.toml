@@ -1,0 +1,44 @@
+[variables]
+main_domain = "${domain}"
+
+[config]
+[[config.domains]]
+serviceName = "umami"
+port = 3000
+host = "${main_domain}"
+
+[config.env]
+POSTGRES_DB = "umami"
+POSTGRES_USER = "umami"
+POSTGRES_PASSWORD = "change_me_postgres_password"
+
+# Secrets — APP_SECRET: openssl rand -hex 32
+APP_SECRET = "change_me_openssl_rand_hex_32"
+# Required before any user can enable 2FA — openssl rand -hex 32
+TWO_FACTOR_ENCRYPTION_KEY = ""
+
+# Proxy / visitor IPs
+CLIENT_IP_HEADER = ""
+TRUSTED_PROXIES = "loopback,linklocal,private"
+IGNORE_IP = ""
+
+# Tracker script / ad-block evasion
+COLLECT_API_ENDPOINT = ""
+TRACKER_SCRIPT_NAME = ""
+
+# Behavior — set to "1" to enable each flag
+DISABLE_BOT_CHECK = ""
+DISABLE_LOGIN = ""
+PRIVATE_MODE = ""
+REMOVE_TRAILING_SLASH = ""
+CORS_MAX_AGE = "86400"
+ERRORS_PER_MINUTE = "120"
+SALT_ROTATION = "month"
+USE_UUIDV7 = ""
+ENABLE_TEST_CONSOLE = ""
+MCP_ENABLED = ""
+DEBUG = ""
+
+# Umami image binds 0.0.0.0:3000 by default
+PORT = "3000"
+HOSTNAME = "0.0.0.0"

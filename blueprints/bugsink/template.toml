@@ -1,0 +1,66 @@
+[variables]
+main_domain = "${domain}"
+
+[config]
+[[config.domains]]
+serviceName = "web"
+port = 8000
+host = "${main_domain}"
+
+[config.env]
+POSTGRES_USER = "bugsink"
+POSTGRES_PASSWORD = "change_me_postgres_password"
+POSTGRES_DB = "bugsink"
+
+# Core — SECRET_KEY must be 50+ random chars (openssl rand -base64 50)
+PORT = "8000"
+SECRET_KEY = "10a88e4a4d91fd3e7ef71abe2e20b2be48570c2fe6d077e7c2736a"
+BASE_URL = "https://bugsink.example.com"
+SITE_TITLE = "Bugsink"
+ALLOWED_HOSTS = ""
+CREATE_SUPERUSER = "admin@example.com:change_me_now_9fX!"
+
+# Proxy awareness — Dokploy Traefik terminates HTTPS in front of the app
+BEHIND_HTTPS_PROXY = "True"
+USE_X_FORWARDED_HOST = "false"
+USE_X_REAL_IP = "true"
+USE_X_FORWARDED_FOR = "false"
+X_FORWARDED_FOR_PROXY_COUNT = "1"
+
+# Registration / access
+SINGLE_USER = "false"
+SINGLE_TEAM = "false"
+USER_REGISTRATION = "CB_ADMINS"
+USER_REGISTRATION_VERIFY_EMAIL = "false"
+
+# Email — leave empty to disable sending
+EMAIL_BACKEND = ""
+EMAIL_HOST = ""
+EMAIL_HOST_USER = ""
+EMAIL_HOST_PASSWORD = ""
+EMAIL_PORT = "587"
+EMAIL_USE_TLS = "True"
+EMAIL_USE_SSL = "False"
+EMAIL_TIMEOUT = "5"
+DEFAULT_FROM_EMAIL = "Bugsink <bugsink@example.org>"
+
+# Misc
+TIME_ZONE = "UTC"
+DEBUG = "False"
+PHONEHOME = "True"
+SNAPPEA_NUM_WORKERS = "3"
+
+# Limits / retention
+MAX_EVENT_SIZE = "1048576"
+MAX_ENVELOPE_SIZE = "104857600"
+MAX_ENVELOPE_COMPRESSED_SIZE = "20971520"
+MAX_FILE_SIZE = "2147483648"
+MAX_EVENTS_PER_MONTH = "1000000"
+MAX_EMAILS_PER_MONTH = ""
+MAX_EVENT_AGE_DAYS = ""
+
+# File storage (empty = stored in the database)
+FILE_EVENT_STORAGE_PATH = ""
+FILE_EVENT_STORAGE_USE_FOR_WRITE = ""
+FILE_OBJECT_STORAGE_PATH = ""
+FILE_OBJECT_STORAGE_USE_FOR_WRITE = ""
