@@ -74,11 +74,12 @@ Template → Base URL = the Pages URL (currently `https://themusicdev.github.io/
 
 - 2026-11-17: Repo scaffolded with `hello-web` example to verify Pages +
   registry plumbing.
-- 2026-11-17: Added `bugsink`, `meilisearch`, `umami`. Written per the new
-  conventions (pinned tags, full env lists, log rotation, official logos).
-  **Not yet live-tested on the Dokploy instance** — run compose-deployTemplate
-  on each before trusting the env defaults (esp. Bugsink: empty-string env
-  vars like `EMAIL_HOST=""` may not behave the same as *unset*).
+- 2026-11-17: Added `bugsink`, `meilisearch`, `umami`. All three live-tested
+  on the real instance — project `template-test`, env `production`, all
+  healthy: bugsink (migrations on postgres ✓, health/ready 200), meilisearch
+  (v1.57.0, /health 200), umami (v3.5.0, migrations ✓, Next.js ready).
+- 2026-11-17: Dokploy MCP server `dokploy-mcp` times out in sessions — use
+  `dokploy-2719` tools.
 
 ## Gotchas learned
 
@@ -97,5 +98,20 @@ Template → Base URL = the Pages URL (currently `https://themusicdev.github.io/
 - (2026-11-17) GitHub Pages was never actually enabled until now — the
   registry URL 404'd and `compose-templates` returned `[]`. Pages now runs
   via the `.github/workflows/deploy.yml` Actions workflow (build_type=workflow).
+- (2026-11-17) **Empty string ≠ unset through the Dokploy env file.**
+  meilisearch crashes with `error: a value is required for '--import-snapshot'`
+  when a value-taking flag env var is set to `""`. Rule: never list
+  value-taking CLI-flag env vars (meili import/dump/snapshot restore flags) in
+  compose; anything left empty in template.toml must be tolerated by the app.
+- (2026-11-17) `compose-redeploy` on a `sourceType: raw` compose is a no-op —
+  it redeploys the *stored* compose file, it does not re-fetch the registry
+  template. Template fixes require `compose-update` (paste new composeFile) or
+  deleting the compose service and re-running `compose-deployTemplate`.
+- (2026-11-17) `compose-deployTemplate` only *creates* the compose service
+  (status idle, no deployment). A separate `compose-deploy` call is needed to
+  actually deploy.
+- (2026-11-17) Dokploy auto-creates an http sslip.io domain per compose
+  service from `[config.domains]` (e.g.
+  `templatetest-meilisearch-…-70-23-166-50.sslip.io`, port = configured port).
 - (2026-11-17) Logo sources: meilisearch (repo main/assets/logo.svg),
   umami (umami.is /safari-pinned-tab.svg), bugsink (site 64 px PNG).
