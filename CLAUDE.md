@@ -113,5 +113,16 @@ Template → Base URL = the Pages URL (currently `https://themusicdev.github.io/
 - (2026-11-17) Dokploy auto-creates an http sslip.io domain per compose
   service from `[config.domains]` (e.g.
   `templatetest-meilisearch-…-70-23-166-50.sslip.io`, port = configured port).
+- (2026-11-17) Apps with hostname allowlists (bugsink/Django `BASE_URL` →
+  `ALLOWED_HOSTS`) return 400 on the final domain until `BASE_URL` is set to
+  the real host via the compose `.env` + redeploy. Dokploy's auto sslip.io
+  domain can't be known at template-authoring time — fix env after deploy.
+- (2026-11-17) Changing a compose domain requires a `compose-redeploy` after
+  `domain-update` for the Traefik route to appear (raw compose: same stored
+  file, but regenerates the per-app Traefik dynamic config on each deploy).
+- (2026-11-17) Test instances for templates: project `template-test`,
+  domains `test-bugsink.2719.fyi` (Bugsink, http→CF Full→Traefik),
+  `test-meilisearch.2719.fyi` (Meilisearch), `test-umami.2719.fyi` (Umami) —
+  all no-HTTPS-at-origin, *.2719.fyi wildcards through Cloudflare.
 - (2026-11-17) Logo sources: meilisearch (repo main/assets/logo.svg),
   umami (umami.is /safari-pinned-tab.svg), bugsink (site 64 px PNG).
