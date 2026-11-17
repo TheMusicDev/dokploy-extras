@@ -113,6 +113,20 @@ Template → Base URL = the Pages URL (currently `https://themusicdev.github.io/
 - (2026-11-17) Dokploy auto-creates an http sslip.io domain per compose
   service from `[config.domains]` (e.g.
   `templatetest-meilisearch-…-70-23-166-50.sslip.io`, port = configured port).
+- (2026-11-17) `compose.update` MCP `env` field is **raw env-file text** —
+  sending base64 writes garbage and wipes every variable (all compose
+  interpolations warn "not set"). Verified working raw.
+- (2026-11-17) `compose-redeploy` no-ops (0.2s deploys) unless the stored
+  compose file content changed — an env-only change won't redeploy. Force a
+  real deploy by also sending a tweaked `composeFile` via compose.update.
+- (2026-11-17) Domain routes are Traefik labels baked into the container at
+  creation (`traefik.http.routers…Host(...)`), not a separate dynamic file.
+  A crashlooping/unhealthy container behind the label makes the domain 404 —
+  check container health first before blaming Traefik.
+- (2026-11-17) Verified reachable (no-origin-HTTPS, via Cloudflare → Traefik
+  :80): `https://test-bugsink.2719.fyi` ("Log in · Bugsink", route:
+  /accounts/login/), `https://test-umami.2719.fyi` (Umami), and
+  `https://test-meilisearch.2719.fyi/health` (API auth with master key ✓).
 - (2026-11-17) Apps with hostname allowlists (bugsink/Django `BASE_URL` →
   `ALLOWED_HOSTS`) return 400 on the final domain until `BASE_URL` is set to
   the real host via the compose `.env` + redeploy. Dokploy's auto sslip.io
