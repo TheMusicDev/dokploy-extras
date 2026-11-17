@@ -16,7 +16,6 @@ MEILI_HTTP_ADDR = "0.0.0.0:7700"
 MEILI_LOG_LEVEL = "INFO"
 # Persistence
 MEILI_DB_PATH = "/meili_data/data.ms"
-MEILI_DUMP_DIR = "/meili_data/dumps"
 MEILI_SNAPSHOT_DIR = "/meili_data/snapshots"
 # Size / perf
 MEILI_HTTP_PAYLOAD_SIZE_LIMIT = "100 MB"
@@ -24,10 +23,10 @@ MEILI_MAX_INDEXING_MEMORY = "2 GiB"
 MEILI_MAX_INDEXING_THREADS = ""
 # Privacy
 MEILI_NO_ANALYTICS = "true"
-# Backups / restores (empty = disabled)
-MEILI_IMPORT_DUMP = ""
-MEILI_IGNORE_MISSING_DUMP = ""
-MEILI_IMPORT_SNAPSHOT = ""
-MEILI_IGNORE_MISSING_SNAPSHOT = ""
-MEILI_SCHEDULE_SNAPSHOT = ""
+# NOTE: MEILI_IMPORT_DUMP / MEILI_IMPORT_SNAPSHOT / MEILI_IGNORE_MISSING_*
+# (restore-time flags) are NOT listed here — meilisearch crashes when given an
+# empty string for value-taking flags. Pass them only with `docker run -e`.
+# Backups
+MEILI_SNAPSHOT_DIR = "/meili_data/snapshots"
+MEILI_SCHEDULE_SNAPSHOT = "false"
 MEILI_SNAPSHOT_INTERVAL_SEC = "86400"
