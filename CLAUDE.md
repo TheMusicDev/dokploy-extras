@@ -94,5 +94,8 @@ Template → Base URL = the Pages URL (currently `https://themusicdev.github.io/
   including `DATABASE_URL` (postgres/mysql) — SQLite in /data is the baked-in
   default we don't use.
 - (2026-11-17) Bugsink only ships raster logos (16–64 px PNG); 64 px it is.
+- (2026-11-17) GitHub Pages was never actually enabled until now — the
+  registry URL 404'd and `compose-templates` returned `[]`. Pages now runs
+  via the `.github/workflows/deploy.yml` Actions workflow (build_type=workflow).
 - (2026-11-17) Logo sources: meilisearch (repo main/assets/logo.svg),
   umami (umami.is /safari-pinned-tab.svg), bugsink (site 64 px PNG).
