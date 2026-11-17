@@ -139,4 +139,10 @@ Template → Base URL = the Pages URL (currently `https://themusicdev.github.io/
   `test-meilisearch.2719.fyi` (Meilisearch), `test-umami.2719.fyi` (Umami) —
   all no-HTTPS-at-origin, *.2719.fyi wildcards through Cloudflare.
 - (2026-11-17) Logo sources: meilisearch (repo main/assets/logo.svg),
-  umami (umami.is /safari-pinned-tab.svg), bugsink (site 64 px PNG).
+  umami (umami.is /safari-pinned-tab.svg, recolored `fill="#000"` → `#fff`
+  — the mark is a monochrome glyph, solid black, invisible on Dokploy's
+  dark UI), bugsink (site 64 px PNG).
+- (2026-11-17) Meilisearch's mini dashboard UI only runs with
+  `MEILI_ENV=development`; in production the root just returns
+  `{"status":"Meilisearch is running"}`. Don't switch the public domain to
+  dev — in development the master key is NOT enforced (open admin access).
