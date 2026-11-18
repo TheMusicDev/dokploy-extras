@@ -26,6 +26,13 @@ services:
       db:
         condition: service_healthy
     restart: unless-stopped
+    # Cloudflare Flexible (or any http→https proxy chain): Traefik rewrites
+    # X-Forwarded-Proto to http at the entrypoint, which breaks Django CSRF
+    # (origin https vs expected http). This middleware restores the real
+    # scheme on the web router. Attach it via the domain config:
+    # Domain → middlewares → ["bugsink-https@docker"] (Dokploy UI: Middleware).
+    labels:
+      - "traefik.http.middlewares.bugsink-https.headers.customrequestheaders.X-Forwarded-Proto=https"
     environment:
       # Core
       PORT: ${PORT}

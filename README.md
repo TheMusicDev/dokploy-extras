@@ -55,6 +55,16 @@ GitHub Pages via Actions workflow on push to `main`. Root of the repo is the
 registry Dokploy reads (`meta.json` + `blueprints/<id>/`). `.nojekyll` included.
 Pages was first enabled 2026-11-17 — before that the registry URL 404'd.
 
+## Bugsink: required post-deploy step (CSRF 403 on login)
+
+Behind Cloudflare (Flexible SSL → Traefik `:80`) Traefik reports
+`X-Forwarded-Proto: http`, so Bugsink rejects logins with
+"CSRF verification failed". The template already defines the fix as a compose
+label (`bugsink-https` middleware); you only need to attach it once:
+
+**Service → Domains → edit the domain → Middlewares: `bugsink-https@docker`**,
+then redeploy. Also set `BASE_URL` / `ALLOWED_HOSTS` to your real domain.
+
 ## Gotchas (Dokploy)
 
 Short version of lessons learned — full list in

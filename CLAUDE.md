@@ -94,6 +94,29 @@ Template → Base URL = the Pages URL (currently `https://themusicdev.github.io/
 
 <!-- Add non-obvious Dokploy/template findings here with dates. -->
 
+- (2026-11-18) **Bugsink CSRF 403 behind Cloudflare Flexible — solved.** CF
+  talks plain http to Traefik `:80`, Traefik stamps `X-Forwarded-Proto: http`,
+  Django computes expected origin `http://…` but the browser sends
+  `Origin: https://…` → "CSRF verification failed". Fix = headers middleware
+  defined as a **Traefik label inside the compose service**
+  (`traefik.http.middlewares.bugsink-https.headers.customrequestheaders.X-Forwarded-Proto=https`,
+  now in the bugsink blueprint, v1.2.0) and attached on the domain as
+  `bugsink-https@docker` (domain-update `middlewares`). Mirrors the user's
+  older working instance `homelab-bugsink-b9xege`. Applied + verified on the
+  test stack and on the user's `okf-bugsink.2719.fyi` (login POST 403 → 200).
+- (2026-11-18) Did NOT work, don't retry: file-based middleware in
+  `middlewares.yml` (router referencing it 404'd), Traefik
+  `forwardedHeaders.trustedIPs`, `BEHIND_PLAIN_HTTP_PROXY`, origin
+  HTTPS/letsencrypt (CF Flexible → 301 loop). **The user will not change the
+  Cloudflare SSL mode** — other services depend on Flexible. Never ask again.
+- (2026-11-18) `template.toml` can't attach a domain middleware, so after
+  deploying bugsink from the registry the domain's Middleware must be set to
+  `bugsink-https@docker` (documented in README; or use domain-update).
+- (2026-11-18) Debug aid: `DEBUG_CSRF=True` + POST `/debug/csrf/` shows the
+  headers Django sees. A bad-password login POST returning 200 (not 403)
+  proves CSRF passes. Compose ids change if the user recreates a service —
+  re-run `project-all` rather than trusting old ids.
+
 - (2026-11-17) ghcr.io `/tags/list` caps at 100 entries by default — pass
   `?n=1000` or newer tags vanish silently.
 - (2026-11-17) Umami v3 images are unified: plain numeric tags
