@@ -9,12 +9,12 @@ host = "${main_domain}"
 
 [config.env]
 POSTGRES_USER = "bugsink"
-POSTGRES_PASSWORD = "change_me_postgres_password"
+POSTGRES_PASSWORD = "${password}"
 POSTGRES_DB = "bugsink"
 
 # Core — SECRET_KEY must be 50+ random chars (openssl rand -base64 50)
 PORT = "8000"
-SECRET_KEY = "10a88e4a4d91fd3e7ef71abe2e20b2be48570c2fe6d077e7c2736a"
+SECRET_KEY = "${password:50}"
 BASE_URL = "https://bugsink.example.com"
 SITE_TITLE = "Bugsink"
 ALLOWED_HOSTS = ""

@@ -9,14 +9,13 @@ host = "${main_domain}"
 
 [config.env]
 # Required — min 16 chars, used as Bearer key for all API access
-MEILI_MASTER_KEY = "e431523c87353fc29bfe3ab255b8931290d5724dcef141f84a"
+MEILI_MASTER_KEY = "${password:32}"
 # Set "production" for prod (enables master key enforcement, disables UI)
 MEILI_ENV = "production"
 MEILI_HTTP_ADDR = "0.0.0.0:7700"
 MEILI_LOG_LEVEL = "INFO"
 # Persistence
 MEILI_DB_PATH = "/meili_data/data.ms"
-MEILI_SNAPSHOT_DIR = "/meili_data/snapshots"
 # Size / perf
 MEILI_HTTP_PAYLOAD_SIZE_LIMIT = "100 MB"
 MEILI_MAX_INDEXING_MEMORY = "2 GiB"

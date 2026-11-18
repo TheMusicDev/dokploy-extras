@@ -7,14 +7,16 @@ Custom Dokploy template registry for TheMusicDev. Live registry:
 
 | Template | Version | Image (pinned) | Port | Tags | Notes |
 |---|---|---|---|---|---|
-| [bugsink](blueprints/bugsink/) | 1.0.0 | `bugsink/bugsink:2.6.3` + `postgres:17-alpine` | 8000 | monitoring, error-tracking | Sentry-SDK compatible error tracker. Requires `BASE_URL`/`ALLOWED_HOSTS` set to your real domain, initial login via `CREATE_SUPERUSER` |
-| [meilisearch](blueprints/meilisearch/) | 1.0.0 | `getmeili/meilisearch:v1.57.0` | 7700 | search | All API access via `MEILI_MASTER_KEY`. Mini dashboard only in `MEILI_ENV=development` (dev mode doesn't enforce the master key — don't run on a public domain) |
-| [umami](blueprints/umami/) | 1.0.0 | `ghcr.io/umami-software/umami:3.5.0` + `postgres:15-alpine` | 3000 | analytics | Privacy-focused web analytics. Change `APP_SECRET`; `TWO_FACTOR_ENCRYPTION_KEY` needed before enabling 2FA |
+| [bugsink](blueprints/bugsink/) | 1.1.0 | `bugsink/bugsink:2.6.3` + `postgres:17-alpine` | 8000 | monitoring, error-tracking | Sentry-SDK compatible error tracker. `POSTGRES_PASSWORD`/`SECRET_KEY` auto-generated; requires `BASE_URL`/`ALLOWED_HOSTS` set to your real domain, initial login via `CREATE_SUPERUSER` |
+| [meilisearch](blueprints/meilisearch/) | 1.1.0 | `getmeili/meilisearch:v1.57.0` | 7700 | search | `MEILI_MASTER_KEY` auto-generated (32 chars). Mini dashboard only in `MEILI_ENV=development` (dev mode doesn't enforce the master key — don't run on a public domain) |
+| [umami](blueprints/umami/) | 1.1.0 | `ghcr.io/umami-software/umami:3.5.0` + `postgres:15-alpine` | 3000 | analytics | Privacy-focused web analytics. `APP_SECRET`/`POSTGRES_PASSWORD` auto-generated; `TWO_FACTOR_ENCRYPTION_KEY` needed before enabling 2FA |
 | [hello-web](blueprints/hello-web/) | 1.0.0 | `nginx:alpine` | 80 | example | Minimal plumbing test |
 
-Every template: **pinned image tags** (never `latest`), all documented env vars
-listed in `template.toml` `[config.env]`, `json-file` log rotation (10 MB × 3)
-on every service, official product logos.
+Every template: **pinned image tags** (never `latest`), secrets auto-generated
+via Dokploy's `${password:N}` helper (change only the human-choice fields the
+deploy dialog flags), all documented env vars listed in `template.toml`
+`[config.env]`, `json-file` log rotation (10 MB × 3) on every service,
+official product logos.
 
 ## Use a template
 

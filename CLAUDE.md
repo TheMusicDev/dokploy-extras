@@ -50,6 +50,15 @@ Template → Base URL = the Pages URL (currently `https://themusicdev.github.io/
   `ghcr.io/umami-software/umami:3.5.0`). Verify the tag exists on the registry
   before pinning (docker registry `/tags/list`, ghcr ones need
   `?n=1000` — the default caps at 100 and hides newer tags).
+- **Secrets via Dokploy helpers, not baked values.** `template.toml` supports
+  `${password} / ${password:N}` (random password at deploy time), plus
+  `${hash:N}`, `${uuid}`, `${base64:N}`, `${randomPort}`, `${email}`,
+  `${username}`, `${timestamp}`, `${jwt:secret:payload}`, `${domain}`.
+  Use `${password:N}` for every secret; loud `change_me` placeholders only
+  for values a human must choose (e.g. Bugsink `CREATE_SUPERUSER` login,
+  since a generated email/password would be unknowable to the user).
+  Helpers resolve once when the env file is generated, so redeploys keep
+  the same value.
 - **Every supported env var in `template.toml` `[config.env]`.** The deploy
   dialog is the user's documentation — list all documented config vars with
   sane defaults (empty = disabled) so nothing has to be guessed. Copy-env
@@ -113,6 +122,13 @@ Template → Base URL = the Pages URL (currently `https://themusicdev.github.io/
 - (2026-11-17) Dokploy auto-creates an http sslip.io domain per compose
   service from `[config.domains]` (e.g.
   `templatetest-meilisearch-…-70-23-166-50.sslip.io`, port = configured port).
+- (2026-11-17) Template.toml DOES support secret generation
+  (`${password:N}`) — an earlier wrong claim here said it didn't. All three
+  templates bumped to v1.1.0 using it. Don't trust remembered feature lists
+  — check the official Dokploy/templates README.
+- (2026-11-17) Duplicate TOML keys (a later edit appended a duplicated
+  `MEILI_SNAPSHOT_DIR`) slip past `docker compose config` — always validate
+  template.toml with a real TOML parser too.
 - (2026-11-17) `compose.update` MCP `env` field is **raw env-file text** —
   sending base64 writes garbage and wipes every variable (all compose
   interpolations warn "not set"). Verified working raw.

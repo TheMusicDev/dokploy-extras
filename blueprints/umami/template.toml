@@ -10,10 +10,10 @@ host = "${main_domain}"
 [config.env]
 POSTGRES_DB = "umami"
 POSTGRES_USER = "umami"
-POSTGRES_PASSWORD = "change_me_postgres_password"
+POSTGRES_PASSWORD = "${password}"
 
 # Secrets — APP_SECRET: openssl rand -hex 32
-APP_SECRET = "change_me_openssl_rand_hex_32"
+APP_SECRET = "${password:32}"
 # Required before any user can enable 2FA — openssl rand -hex 32
 TWO_FACTOR_ENCRYPTION_KEY = ""
 
