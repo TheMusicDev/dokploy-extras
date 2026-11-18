@@ -122,6 +122,11 @@ Template → Base URL = the Pages URL (currently `https://themusicdev.github.io/
 - (2026-11-17) Dokploy auto-creates an http sslip.io domain per compose
   service from `[config.domains]` (e.g.
   `templatetest-meilisearch-…-70-23-166-50.sslip.io`, port = configured port).
+- (2026-11-17) Bool env casing is intentionally per-app, don't "standardize":
+  bugsink is case-insensitive (source: `conf_templates/docker.py.template`
+  does `.lower() in ("true","1","yes")`), so `True`/`true`/`1` all work;
+  meilisearch (clap) requires lowercase `true`/`false` and errors on `True`;
+  umami flags are `"1"`. Copy each app's documented casing verbatim.
 - (2026-11-17) Template.toml DOES support secret generation
   (`${password:N}`) — an earlier wrong claim here said it didn't. All three
   templates bumped to v1.1.0 using it. Don't trust remembered feature lists
