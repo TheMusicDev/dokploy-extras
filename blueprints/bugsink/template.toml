@@ -21,7 +21,7 @@ ALLOWED_HOSTS = ""
 CREATE_SUPERUSER = "admin@example.com:change_me_now_9fX!"
 
 # Proxy awareness — Dokploy Traefik terminates HTTPS in front of the app
-BEHIND_HTTPS_PROXY = "True"
+BEHIND_HTTPS_PROXY = "true"
 USE_X_FORWARDED_HOST = "false"
 USE_X_REAL_IP = "true"
 USE_X_FORWARDED_FOR = "false"
@@ -33,21 +33,24 @@ SINGLE_TEAM = "false"
 USER_REGISTRATION = "CB_ADMINS"
 USER_REGISTRATION_VERIFY_EMAIL = "false"
 
-# Email — leave empty to disable sending
+# Email — leave EMAIL_HOST empty to disable sending.
+# EMAIL_BACKEND must stay EMPTY (smtp is auto-selected once EMAIL_HOST is set);
+# if set it must be a full Django dotted path, e.g. "smtp" crashes the app.
+# Django only logs in when BOTH user and password are set.
 EMAIL_BACKEND = ""
 EMAIL_HOST = ""
 EMAIL_HOST_USER = ""
 EMAIL_HOST_PASSWORD = ""
 EMAIL_PORT = "587"
-EMAIL_USE_TLS = "True"
-EMAIL_USE_SSL = "False"
+EMAIL_USE_TLS = "true"
+EMAIL_USE_SSL = "false"
 EMAIL_TIMEOUT = "5"
 DEFAULT_FROM_EMAIL = "Bugsink <bugsink@example.org>"
 
 # Misc
 TIME_ZONE = "UTC"
-DEBUG = "False"
-PHONEHOME = "True"
+DEBUG = "false"
+PHONEHOME = "true"
 SNAPPEA_NUM_WORKERS = "3"
 
 # Limits / retention

@@ -2,7 +2,7 @@
   {
     "id": "bugsink",
     "name": "Bugsink",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "description": "Self-hosted error tracker, Sentry-SDK compatible. One web container + PostgreSQL.",
     "logo": "logo.png",
     "links": {
@@ -31,7 +31,7 @@
   {
     "id": "umami",
     "name": "Umami",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "description": "Privacy-focused, open-source web analytics with first-party cookie-less tracking.",
     "logo": "logo.svg",
     "links": {

@@ -91,12 +91,14 @@ Template → Base URL = the Pages URL (currently `https://themusicdev.github.io/
   `dokploy-2719` tools.
 - 2026-11-19: Added `fider` 1.0.0 (v0.40.0; Dokploy upstream was 0.21.1) and
   `posthog` 1.0.0 (July-2026 snapshot, all images pinned; see Gotchas). Both
-  live-tested in `template-test` (`test-fider.2719.fyi`, `test-posthog.2719.fyi`).
-  Upstream Dokploy templates for these two were behind/broken (MinIO image gone,
-  `:master` floats, `web` name collision). **Not committed yet.** Test stacks
-  `fider` + `posthog` still running in `template-test`. Next candidates:
-  retest both via the registry after the first push (`compose-deployTemplate`),
-  then bump PostHog only if upstream hobby stabilises.
+  live-tested in `template-test`, then pushed (178d041) and **retested through
+  the live registry** via `compose-deployTemplate` + `compose-deploy`: fider
+  `/_health` 200 / `/signup` 200, posthog (~62 min first boot) `/_health` 200,
+  `/` 302, `/flags` 200. Registry deploys land with the sslip.io domain — rename
+  via `domain-update` + `compose-deploy` first. All four fider/posthog test
+  stacks deleted afterwards (volumes included). Upstream Dokploy templates for
+  these two were behind/broken (MinIO image gone, `:master` floats, `web` name
+  collision). Next: bump PostHog only if upstream hobby stabilises.
 
 ## Gotchas learned
 
@@ -238,7 +240,13 @@ Template → Base URL = the Pages URL (currently `https://themusicdev.github.io/
   bugsink is case-insensitive (source: `conf_templates/docker.py.template`
   does `.lower() in ("true","1","yes")`), so `True`/`true`/`1` all work;
   meilisearch (clap) requires lowercase `true`/`false` and errors on `True`;
-  umami flags are `"1"`. Copy each app's documented casing verbatim.
+  umami flags are `"1"`. Casing varies BETWEEN apps, but must be uniform
+  WITHIN one template (2026-11-19: bugsink had `True`/`False` mixed with
+  `true`/`false` from copying the docs verbatim — now all lowercase, 1.2.1).
+  Already-deployed instances keep their old env values; helpers/defaults only
+  apply at creation. Bugsink `EMAIL_BACKEND` must stay empty (a bare `smtp`
+  is not a valid Django backend path and breaks startup/sending); Django only
+  authenticates SMTP when user AND password are both non-empty.
 - (2026-11-17) Template.toml DOES support secret generation
   (`${password:N}`) — an earlier wrong claim here said it didn't. All three
   templates bumped to v1.1.0 using it. Don't trust remembered feature lists
@@ -272,9 +280,10 @@ Template → Base URL = the Pages URL (currently `https://themusicdev.github.io/
   `test-meilisearch.2719.fyi` (Meilisearch), `test-umami.2719.fyi` (Umami) —
   all no-HTTPS-at-origin, *.2719.fyi wildcards through Cloudflare.
 - (2026-11-17) Logo sources: meilisearch (repo main/assets/logo.svg),
-  umami (umami.is /safari-pinned-tab.svg, recolored `fill="#000"` → `#fff`
-  — the mark is a monochrome glyph, solid black, invisible on Dokploy's
-  dark UI), bugsink (site 64 px PNG).
+  umami (`src/assets/logo-white.svg` from umami-software/umami — the bowl
+  mark, already white for dark UIs; 2026-11-19 replaced the earlier
+  umami.is `safari-pinned-tab.svg` potrace blob, which rendered as a plain
+  white disc), bugsink (site 64 px PNG).
 - (2026-11-17) Meilisearch's mini dashboard UI only runs with
   `MEILI_ENV=development`; in production the root just returns
   `{"status":"Meilisearch is running"}`. Don't switch the public domain to
