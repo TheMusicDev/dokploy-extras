@@ -60,7 +60,7 @@
   {
     "id": "posthog",
     "name": "PostHog",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Open-source product analytics with feature flags, experiments, surveys and session replay. Trimmed hobby stack for a single server (needs 8 GB+ RAM).",
     "logo": "logo.svg",
     "links": {

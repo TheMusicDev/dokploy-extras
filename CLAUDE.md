@@ -59,8 +59,9 @@ Template → Base URL = the Pages URL (currently `https://themusicdev.github.io/
   since a generated email/password would be unknowable to the user).
   Helpers resolve once when the env file is generated, so redeploys keep
   the same value.
-- **Every supported env var in `template.toml` `[config.env]`.** The deploy
-  dialog is the user's documentation — list all documented config vars with
+- **Every supported env var in `template.toml` `[config.env]`.** The
+  service's Environment tab is the user's documentation (the create dialog asks
+  only name/server, never env vars) — list all documented config vars with
   sane defaults (empty = disabled) so nothing has to be guessed. Copy-env
   lists verbatim from the project's official docs/compose, not from memory.
 - **Log rotation on every service.** Each compose service gets:
@@ -101,6 +102,18 @@ Template → Base URL = the Pages URL (currently `https://themusicdev.github.io/
   collision). Next: bump PostHog only if upstream hobby stabilises.
 
 ## Gotchas learned
+
+- (2026-11-19) **No user prompts in templates.** `template.toml` has no
+  mechanism to ask for values: domain is auto-generated (sslip.io), helpers
+  generate secrets, everything else is a fixed default the user edits in the
+  Environment tab, then **Deploy**. Domain-dependent defaults (e.g. Bugsink
+  `BASE_URL`) are wrong until edited.
+- (2026-11-19) **PostHog healthcheck `start_period` must outlast first-boot
+  migrations.** `posthog-web` runs `./bin/migrate && exec ./bin/docker-server`,
+  not listening on :8000 until migrations finish (35–62 min on old Xeons).
+  Domain 502s meanwhile (Caddy connection refused). With `start_period: 600s`
+  the container flipped to "unhealthy" after ~17 min (cosmetic, nothing
+  restarts it); 1.0.1 uses 5400s.
 
 - (2026-11-19) **Dokploy upstream `posthog` template is broken**: its
   `minio/minio:RELEASE.2025-04-22…` image 404s on Docker Hub (MinIO stopped

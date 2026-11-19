@@ -326,7 +326,8 @@ services:
       interval: 30s
       timeout: 10s
       retries: 15
-      start_period: 600s
+      # first boot runs thousands of migrations (up to ~60 min on old CPUs); web does not listen until done
+      start_period: 5400s
 
   # Celery worker + scheduler
   worker:
