@@ -43,6 +43,39 @@
     ]
   },
   {
+    "id": "fider",
+    "name": "Fider",
+    "version": "1.0.0",
+    "description": "Open-source customer feedback portal: collect suggestions, vote on them, and track what you ship. One web container + PostgreSQL.",
+    "logo": "logo.png",
+    "links": {
+      "github": "https://github.com/getfider/fider",
+      "website": "https://fider.io"
+    },
+    "tags": [
+      "feedback",
+      "community"
+    ]
+  },
+  {
+    "id": "posthog",
+    "name": "PostHog",
+    "version": "1.0.0",
+    "description": "Open-source product analytics with feature flags, experiments, surveys and session replay. Trimmed hobby stack for a single server (needs 8 GB+ RAM).",
+    "logo": "logo.svg",
+    "links": {
+      "github": "https://github.com/PostHog/posthog",
+      "website": "https://posthog.com",
+      "docs": "https://posthog.com/docs/self-host"
+    },
+    "tags": [
+      "analytics",
+      "product-analytics",
+      "feature-flags",
+      "session-replay"
+    ]
+  },
+  {
     "id": "hello-web",
     "name": "Hello Web",
     "version": "1.0.0",

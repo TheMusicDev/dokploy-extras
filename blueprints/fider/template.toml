@@ -1,0 +1,110 @@
+[variables]
+main_domain = "${domain}"
+
+[config]
+[[config.domains]]
+serviceName = "fider"
+port = 3000
+host = "${main_domain}"
+
+[config.env]
+POSTGRES_USER = "fider"
+POSTGRES_PASSWORD = "${password}"
+POSTGRES_DB = "fider"
+
+# Core
+GO_ENV = "production"
+BASE_URL = "https://${main_domain}"
+JWT_SECRET = "${password:64}"
+DATABASE_MAX_IDLE_CONNS = "2"
+DATABASE_MAX_OPEN_CONNS = "4"
+PORT = "3000"
+HOST = ""
+# single = one site per instance; multi = subdomain per tenant (needs HOST_DOMAIN)
+HOST_MODE = "single"
+HOST_DOMAIN = ""
+LOCALE = "en"
+SIGNUP_DISABLED = "false"
+POST_CREATION_WITH_TAGS_ENABLED = "false"
+ALLOW_ALLOWED_SCHEMES = "true"
+# true lets webhooks / OAuth URLs reach private network addresses
+ALLOW_PRIVATE_NETWORK_TARGETS = "false"
+SEARCH_NOISE_WORDS = "add|support|for|implement|create|make|allow|enable|provide|some|also|include|very|make|and|for|to|a|able|function|feature|app"
+GOOGLE_ANALYTICS = ""
+CDN_HOST = ""
+WEBHOOK_DISABLE_ON_FAILURE = "true"
+
+# HTTP server
+HTTP_READ_TIMEOUT = "5s"
+HTTP_WRITE_TIMEOUT = "10s"
+HTTP_IDLE_TIMEOUT = "120s"
+HTTP_MAX_BODY_SIZE = "26214400"
+
+# Built-in TLS — leave off, Dokploy Traefik terminates HTTPS
+SSL_AUTO = "false"
+SSL_CERT = ""
+SSL_CERT_KEY = ""
+
+# Logging (stdout only; file logging would write inside the container)
+LOG_LEVEL = "INFO"
+LOG_STRUCTURED = "false"
+LOG_CONSOLE = "true"
+LOG_SQL = "false"
+LOG_FILE = "false"
+LOG_FILE_OUTPUT = "logs/output.log"
+
+# Prometheus metrics
+METRICS_ENABLED = "false"
+METRICS_PORT = "4000"
+METRICS_HOST = ""
+
+# Maintenance mode
+MAINTENANCE = "false"
+MAINTENANCE_MESSAGE = ""
+MAINTENANCE_UNTIL = ""
+
+# Email — Fider signs users in with emailed codes, so SMTP must work.
+# Replace the example SMTP host/credentials before first login (or use
+# Mailgun / AWS SES: set EMAIL accordingly and fill that block).
+EMAIL = "smtp"
+EMAIL_NOREPLY = "noreply@${main_domain}"
+EMAIL_ALLOWLIST = ""
+EMAIL_BLOCKLIST = ""
+EMAIL_SMTP_HOST = "smtp.example.com"
+EMAIL_SMTP_PORT = "587"
+EMAIL_SMTP_USERNAME = ""
+EMAIL_SMTP_PASSWORD = ""
+EMAIL_SMTP_ENABLE_STARTTLS = "true"
+EMAIL_SMTP_ENABLE_IMPLICIT_TLS = "false"
+EMAIL_MAILGUN_API = ""
+EMAIL_MAILGUN_DOMAIN = ""
+EMAIL_MAILGUN_REGION = "US"
+EMAIL_AWSSES_REGION = ""
+EMAIL_AWSSES_ACCESS_KEY_ID = ""
+EMAIL_AWSSES_SECRET_ACCESS_KEY = ""
+
+# OAuth sign-in (empty = provider disabled)
+OAUTH_GITHUB_CLIENTID = ""
+OAUTH_GITHUB_SECRET = ""
+OAUTH_GOOGLE_CLIENTID = ""
+OAUTH_GOOGLE_SECRET = ""
+OAUTH_FACEBOOK_APPID = ""
+OAUTH_FACEBOOK_SECRET = ""
+
+# Blob storage: sql (in PostgreSQL) | fs | s3
+BLOB_STORAGE = "sql"
+BLOB_STORAGE_FS_PATH = ""
+BLOB_STORAGE_S3_ENDPOINT_URL = ""
+BLOB_STORAGE_S3_REGION = ""
+BLOB_STORAGE_S3_ACCESS_KEY_ID = ""
+BLOB_STORAGE_S3_SECRET_ACCESS_KEY = ""
+BLOB_STORAGE_S3_BUCKET = ""
+
+# Hosted-service features (Stripe billing, user list) — unused when self-hosting
+STRIPE_SECRET_KEY = ""
+STRIPE_WEBHOOK_SECRET = ""
+STRIPE_PRICE_ID = ""
+STRIPE_ANNUAL_PRICE_ID = ""
+STRIPE_UK_VAT_TAX_RATE_ID = ""
+USER_LIST_ENABLED = "false"
+USER_LIST_APIKEY = ""

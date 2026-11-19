@@ -89,8 +89,97 @@ Template → Base URL = the Pages URL (currently `https://themusicdev.github.io/
   (v1.57.0, /health 200), umami (v3.5.0, migrations ✓, Next.js ready).
 - 2026-11-17: Dokploy MCP server `dokploy-mcp` times out in sessions — use
   `dokploy-2719` tools.
+- 2026-11-19: Added `fider` 1.0.0 (v0.40.0; Dokploy upstream was 0.21.1) and
+  `posthog` 1.0.0 (July-2026 snapshot, all images pinned; see Gotchas). Both
+  live-tested in `template-test` (`test-fider.2719.fyi`, `test-posthog.2719.fyi`).
+  Upstream Dokploy templates for these two were behind/broken (MinIO image gone,
+  `:master` floats, `web` name collision). **Not committed yet.** Test stacks
+  `fider` + `posthog` still running in `template-test`. Next candidates:
+  retest both via the registry after the first push (`compose-deployTemplate`),
+  then bump PostHog only if upstream hobby stabilises.
 
 ## Gotchas learned
+
+- (2026-11-19) **Dokploy upstream `posthog` template is broken**: its
+  `minio/minio:RELEASE.2025-04-22…` image 404s on Docker Hub (MinIO stopped
+  publishing; quay.io needs auth) — deploys die with "pull access denied".
+  Our blueprint swaps in `chrislusf/seaweedfs:4.29` as `objectstorage:19000`
+  (same swap upstream's hobby compose made), one `posthog` S3 identity from the
+  install's generated keys, no anonymous access. Smoke-tested locally: signed
+  PUT/GET 200, unsigned/wrong key 403. Web/replay services must
+  `depends_on: objectstorage: service_healthy` (identity is registered after
+  start by a background loop; sentinel file drives the healthcheck).
+- (2026-11-19) **PostHog `SITE_URL` scheme must be the browser's (https), not the
+  origin's.** With `http://` behind Cloudflare, signup/login work (unauthenticated
+  requests skip CSRF) but every logged-in POST 403s: "CSRF Failed: Origin checking
+  failed - https://… does not match any trusted origins". No Traefik middleware
+  needed (unlike Bugsink) — just `POSTHOG_SITE_URL=https://…` +
+  `POSTHOG_SECURE_COOKIES=true` (template defaults since 1.0.0). Env-only changes
+  need `compose-update env` then **`compose-deploy`** (not `compose-redeploy`).
+- (2026-11-19) **PostHog live-test result (test-posthog.2719.fyi):** 20 containers
+  healthy; signup 201; login 200; authenticated HogQL POST with https Origin OK;
+  `/e/` capture 200 → event found in ClickHouse (capture → Kafka → ingestion-general
+  → ClickHouse works); `/flags`, `/array/<token>/config`, `/api/surveys` 200;
+  `/s/` replay-capture reachable (400 on an empty probe). First boot ≈ 45 min on
+  this Ivy Bridge host (thousands of Django migrations) — not 5–10 min. Session
+  replay recording itself and livestream/CDP were not exercised.
+- (2026-11-19) **Service-name collisions on `dokploy-network`.** The domain-routed
+  service (PostHog's Caddy `proxy`) joins Dokploy's shared network, and every
+  other stack's services are reachable there under their compose service name.
+  `reverse_proxy web:8000` therefore round-robined into other apps' `web`
+  containers — Bugsink answered `test-posthog.2719.fyi` with "400 Bad Request:
+  Host …" (the page title said Bugsink; Rust paths like `/flags` worked because
+  `feature-flags` is unique). Rule: **any service another service dials by DNS
+  name from a domain-routed container must have a unique name** (`posthog-web`,
+  not `web`/`app`/`api`/`db`). Upstream Dokploy's PostHog template has this bug.
+  Diagnose by reading the 400/404 body, not just the status code.
+- (2026-11-19) **ClickHouse ≥ 26.6 needs AVX2 (x86-64-v3).** The Dokploy test
+  server is an Intel Xeon E5-2697 v2 (Ivy Bridge: AVX yes, **AVX2 no** — read via
+  `docker-readContainerFile` on `/proc/cpuinfo`, base64 in the result). Upstream
+  PostHog's pinned `clickhouse-server:26.6.1.1193` crash-looped with exit 132
+  "Illegal instruction", leaving `web` stuck "Created". Fix: image is now
+  `${CLICKHOUSE_VERSION}`, default `26.3.66.4` (26.3 LTS, SSE4.2 baseline). Bump
+  to 26.6+ only on AVX2 hosts. Same CPU limit applies to any future ClickHouse
+  template. Check flags first: `grep -w avx2 /proc/cpuinfo`.
+- (2026-11-19) **PostHog snapshot choice.** Self-host has no tagged releases and
+  upstream hobby compose (HEAD) now needs a custom ClickHouse image
+  (`ghcr.io/posthog/clickhouse-posthog`), SeaweedFS x2, personhog, valkey,
+  etcd, new capture env (`CAPTURE_OUTPUT_*` replaced `CAPTURE_V1_SINK_*`) — i.e.
+  re-porting the trimmed stack. We stayed on the 2026-07-14 shape
+  (`posthog/posthog:1e7b36e…`) and pinned every image from that era:
+  `posthog-node:sha-82ea668` (also hobby's `latest`; Docker Hub node repo has
+  had no newer than sha-c280973 since 2026-07-20), ghcr `capture` /
+  `feature-flags` / `hypercache-server` `sha-0c41485`, `livestream`
+  `sha-e6a7738`. All are env vars in `template.toml` (`*_VERSION`) so bumping is
+  one place. Upstream Dokploy template used floating `:master` for those four.
+  Finding era tags: GitHub Packages API
+  (`gh api /orgs/PostHog/packages/container/posthog%2F<img>/versions`, newest
+  first, ~100/page, 100s of pages — binary-search on `updated_at`); ghcr
+  `/tags/list` is lexicographic and useless for recency.
+- (2026-11-19) PostHog docs env list: only list vars whose documented default
+  is empty or sane; skip `None`-default ones (TRUSTED_PROXIES, STATSD_*,
+  GITHUB_TOKEN...) — an empty string through the env file isn't `None`. Any
+  unlisted var can be added to the compose `environment`.
+- (2026-11-19) PostHog logomark: official `PostHog/posthog.com`
+  `static/brand/posthog-logomark-padded.svg`, head recolored `#111`→`#fff`
+  (dark Dokploy UI, same fix as umami). Fider: `etc/logo.png` (300×300) from
+  `getfider/fider` — repo ships no SVG.
+- (2026-11-19) **Fider** v0.40.0 (Dokploy upstream was on 0.21.1): all env vars
+  copied from `app/pkg/env/env.go`. Logs users in by **emailed code** and
+  panics at startup if `EMAIL_SMTP_HOST`/`PORT` are empty (smtp is inferred when
+  `EMAIL` is empty), so the template ships a placeholder `smtp.example.com`
+  — user must set real SMTP before first login. Dropped upstream's `mailhog`
+  (no UI exposed, swallowed every mail). Empty-string string vars are fine on
+  Fider; typed vars keep real defaults. Live-tested: `/` → 307 `/signup`
+  (first-run wizard), both containers healthy, no http→https redirect loop
+  behind Cloudflare Flexible.
+- (2026-11-19) Testing without pushing: `compose-create` (raw) →
+  `mounts-create` (file mounts, `mountPath: "/"`, `filePath` like the toml) →
+  `compose-update` (`composeFile` + raw `env`) → `domain-create` →
+  `compose-deploy`. Needs the full compose typed into the call — a registry
+  push + `compose-deployTemplate` is cheaper when pushing is allowed.
+- (2026-11-19) Server for tests has 135 GB RAM / 24 CPU — PostHog's 8 GB+
+  requirement is no problem there.
 
 <!-- Add non-obvious Dokploy/template findings here with dates. -->
 

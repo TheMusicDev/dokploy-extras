@@ -1,0 +1,121 @@
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: "pg_isready -h localhost -U $${POSTGRES_USER} -d $${POSTGRES_DB}"
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  fider:
+    image: getfider/fider:v0.40.0
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    environment:
+      # Core
+      GO_ENV: ${GO_ENV}
+      BASE_URL: ${BASE_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?sslmode=disable
+      DATABASE_MAX_IDLE_CONNS: ${DATABASE_MAX_IDLE_CONNS}
+      DATABASE_MAX_OPEN_CONNS: ${DATABASE_MAX_OPEN_CONNS}
+      PORT: ${PORT}
+      HOST: ${HOST}
+      HOST_MODE: ${HOST_MODE}
+      HOST_DOMAIN: ${HOST_DOMAIN}
+      LOCALE: ${LOCALE}
+      SIGNUP_DISABLED: ${SIGNUP_DISABLED}
+      POST_CREATION_WITH_TAGS_ENABLED: ${POST_CREATION_WITH_TAGS_ENABLED}
+      ALLOW_ALLOWED_SCHEMES: ${ALLOW_ALLOWED_SCHEMES}
+      ALLOW_PRIVATE_NETWORK_TARGETS: ${ALLOW_PRIVATE_NETWORK_TARGETS}
+      SEARCH_NOISE_WORDS: ${SEARCH_NOISE_WORDS}
+      GOOGLE_ANALYTICS: ${GOOGLE_ANALYTICS}
+      CDN_HOST: ${CDN_HOST}
+      WEBHOOK_DISABLE_ON_FAILURE: ${WEBHOOK_DISABLE_ON_FAILURE}
+      # HTTP server
+      HTTP_READ_TIMEOUT: ${HTTP_READ_TIMEOUT}
+      HTTP_WRITE_TIMEOUT: ${HTTP_WRITE_TIMEOUT}
+      HTTP_IDLE_TIMEOUT: ${HTTP_IDLE_TIMEOUT}
+      HTTP_MAX_BODY_SIZE: ${HTTP_MAX_BODY_SIZE}
+      # Built-in TLS (leave off behind Traefik)
+      SSL_AUTO: ${SSL_AUTO}
+      SSL_CERT: ${SSL_CERT}
+      SSL_CERT_KEY: ${SSL_CERT_KEY}
+      # Logging
+      LOG_LEVEL: ${LOG_LEVEL}
+      LOG_STRUCTURED: ${LOG_STRUCTURED}
+      LOG_CONSOLE: ${LOG_CONSOLE}
+      LOG_SQL: ${LOG_SQL}
+      LOG_FILE: ${LOG_FILE}
+      LOG_FILE_OUTPUT: ${LOG_FILE_OUTPUT}
+      # Metrics
+      METRICS_ENABLED: ${METRICS_ENABLED}
+      METRICS_PORT: ${METRICS_PORT}
+      METRICS_HOST: ${METRICS_HOST}
+      # Maintenance mode
+      MAINTENANCE: ${MAINTENANCE}
+      MAINTENANCE_MESSAGE: ${MAINTENANCE_MESSAGE}
+      MAINTENANCE_UNTIL: ${MAINTENANCE_UNTIL}
+      # Email (Fider logs users in via emailed codes: a real SMTP is required)
+      EMAIL: ${EMAIL}
+      EMAIL_NOREPLY: ${EMAIL_NOREPLY}
+      EMAIL_ALLOWLIST: ${EMAIL_ALLOWLIST}
+      EMAIL_BLOCKLIST: ${EMAIL_BLOCKLIST}
+      EMAIL_SMTP_HOST: ${EMAIL_SMTP_HOST}
+      EMAIL_SMTP_PORT: ${EMAIL_SMTP_PORT}
+      EMAIL_SMTP_USERNAME: ${EMAIL_SMTP_USERNAME}
+      EMAIL_SMTP_PASSWORD: ${EMAIL_SMTP_PASSWORD}
+      EMAIL_SMTP_ENABLE_STARTTLS: ${EMAIL_SMTP_ENABLE_STARTTLS}
+      EMAIL_SMTP_ENABLE_IMPLICIT_TLS: ${EMAIL_SMTP_ENABLE_IMPLICIT_TLS}
+      EMAIL_MAILGUN_API: ${EMAIL_MAILGUN_API}
+      EMAIL_MAILGUN_DOMAIN: ${EMAIL_MAILGUN_DOMAIN}
+      EMAIL_MAILGUN_REGION: ${EMAIL_MAILGUN_REGION}
+      EMAIL_AWSSES_REGION: ${EMAIL_AWSSES_REGION}
+      EMAIL_AWSSES_ACCESS_KEY_ID: ${EMAIL_AWSSES_ACCESS_KEY_ID}
+      EMAIL_AWSSES_SECRET_ACCESS_KEY: ${EMAIL_AWSSES_SECRET_ACCESS_KEY}
+      # OAuth sign-in (empty = provider disabled)
+      OAUTH_GITHUB_CLIENTID: ${OAUTH_GITHUB_CLIENTID}
+      OAUTH_GITHUB_SECRET: ${OAUTH_GITHUB_SECRET}
+      OAUTH_GOOGLE_CLIENTID: ${OAUTH_GOOGLE_CLIENTID}
+      OAUTH_GOOGLE_SECRET: ${OAUTH_GOOGLE_SECRET}
+      OAUTH_FACEBOOK_APPID: ${OAUTH_FACEBOOK_APPID}
+      OAUTH_FACEBOOK_SECRET: ${OAUTH_FACEBOOK_SECRET}
+      # Blob storage (sql = images stored in PostgreSQL)
+      BLOB_STORAGE: ${BLOB_STORAGE}
+      BLOB_STORAGE_FS_PATH: ${BLOB_STORAGE_FS_PATH}
+      BLOB_STORAGE_S3_ENDPOINT_URL: ${BLOB_STORAGE_S3_ENDPOINT_URL}
+      BLOB_STORAGE_S3_REGION: ${BLOB_STORAGE_S3_REGION}
+      BLOB_STORAGE_S3_ACCESS_KEY_ID: ${BLOB_STORAGE_S3_ACCESS_KEY_ID}
+      BLOB_STORAGE_S3_SECRET_ACCESS_KEY: ${BLOB_STORAGE_S3_SECRET_ACCESS_KEY}
+      BLOB_STORAGE_S3_BUCKET: ${BLOB_STORAGE_S3_BUCKET}
+      # Hosted-service only (multi-tenant billing / user list); unused self-hosted
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+      STRIPE_PRICE_ID: ${STRIPE_PRICE_ID}
+      STRIPE_ANNUAL_PRICE_ID: ${STRIPE_ANNUAL_PRICE_ID}
+      STRIPE_UK_VAT_TAX_RATE_ID: ${STRIPE_UK_VAT_TAX_RATE_ID}
+      USER_LIST_ENABLED: ${USER_LIST_ENABLED}
+      USER_LIST_APIKEY: ${USER_LIST_APIKEY}
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  db-data:
